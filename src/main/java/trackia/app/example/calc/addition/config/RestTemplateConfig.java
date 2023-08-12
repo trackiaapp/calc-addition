@@ -12,7 +12,7 @@ import trackia.app.util.RestTemplateJournal;
 @Configuration
 public class RestTemplateConfig {
 
-    @Value("${server.connection-timeout:30000}") private String timeOut;
+    @Value("${server.connection-timeout:3000}") private String timeOut;
 
     @Bean
 	public RestTemplateJournal restTemplate() {
