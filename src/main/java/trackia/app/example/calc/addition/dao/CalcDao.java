@@ -5,15 +5,13 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,18 +20,15 @@ import com.google.gson.JsonSyntaxException;
 
 import lombok.extern.log4j.Log4j2;
 import trackia.app.Trackia;
-import trackia.app.annotations.R;
 import trackia.app.example.calc.addition.to.CalcRequest;
 import trackia.app.example.calc.addition.to.CalcResponse;
 import trackia.app.exception.BussinesException;
-import trackia.app.to.Journal;
-import trackia.app.util.RestTemplateJournal;
 import trackia.app.util.Util;
 
 @Repository
 @Log4j2
 public class CalcDao {
-	@Autowired private RestTemplateJournal restTemplate;
+	@Autowired private RestTemplate restTemplate;
 
 	private static final String OPERATOR_ADDITION = "+";
 	private static final String OPERATOR_SUBTRACTION = "-";
@@ -45,33 +40,25 @@ public class CalcDao {
 	@Value(value = "${app.multiplication}") private String urlMultiplication;
 	@Value(value = "${app.division}")       private String urlDivision;
 	
-	@Trackia(value = "DAO_VALUE_CALC", description = "Calc Value ")
-	public Integer value(@R Object exp, @R String expPart, Journal journal) {
+	@Trackia
+	public Integer value(Object exp, String part) {
 		log.info("value start");
-		journal.setDescription(journal.getDescription() + expPart + " part");
-		
+
 		String strVal = exp.toString();
 		if(exp.toString().startsWith("{")){
-			return parseRemote(exp, journal);
+			return parseRemote(exp);
 		}else {
 			return parseInt(strVal);
 		}
 	}
 	
-	private Integer parseRemote(Object exp, Journal journal) {
+	private Integer parseRemote(Object exp) {
 		String operation = "";
 		try {
 			final CalcRequest calcExp =  Util.toObject(Util.toJson(exp), CalcRequest.class);
 			operation = "[" + calcExp.getOperation() + "]";
-			final HttpHeaders header = Util.journalHeaderTemplate(journal);
-	        final HttpEntity<CalcRequest> requestEntity = new HttpEntity<>(calcExp, header);
-	    	
-	        final CalcResponse response = restTemplate.exchange(getUrl(calcExp), HttpMethod.POST, requestEntity, CalcResponse.class, journal).getBody();
-			if(response != null) {
-				return response.getResult();
-			}else {
-				throw new BussinesException(HttpStatus.BAD_REQUEST, "No se puede evaluar la expresion", "0007");
-			}
+			
+			return restTemplate.postForObject(getUrl(calcExp), exp, CalcResponse.class).getResult();
         
 		}catch(ResourceAccessException e) {
 			throw new BussinesException(HttpStatus.NOT_FOUND, "Servicio indisponible momentaneamente en operacion "+ operation, "0006", e);			

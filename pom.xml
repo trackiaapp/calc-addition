@@ -54,10 +54,30 @@
 		   <artifactId>lombok</artifactId> 
 		</dependency>
 		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aspects</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjtools</artifactId>
+		</dependency>
+		
 	    <dependency>
 	        <groupId>app.trackia</groupId>
 	        <artifactId>trackia</artifactId>
-	        <version>1.1.4</version>
+	        <version>1.1.6</version>
 	    </dependency>
 	</dependencies>
 
