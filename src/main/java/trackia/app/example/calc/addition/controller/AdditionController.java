@@ -23,7 +23,7 @@ public class AdditionController {
 	
 	private final AdditionService service;
 	
-	@Trackia
+	@Trackia(description = "Calc Addition TrackIA example", write = true)
 	@Slable(3000)
 	@Infoable
 	
